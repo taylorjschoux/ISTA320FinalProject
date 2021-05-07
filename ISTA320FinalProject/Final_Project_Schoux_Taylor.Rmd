@@ -1,0 +1,104 @@
+---
+title: "ISTA320_Final_Project"
+author: "Taylor Schoux"
+date: "5/3/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(tidyverse)
+library(RColorBrewer)
+library(knitr)
+library(ggthemes)
+opts_chunk$set(echo = TRUE, message = FALSE)
+
+
+#For this Project I will be working with a dataset from Kaggle on the Amazon Top 50 Bestselling Books 2009-2019
+#https://www.kaggle.com/sootersaalu/amazon-top-50-bestselling-books-2009-2019
+```
+
+## R Markdown
+```{r}
+#reading data in 
+best_sellers <- read_csv("data/bestsellers with categories.csv")
+
+#
+glimpse(best_sellers)
+summary(best_sellers)
+
+head(best_sellers)
+
+best_sellers<- best_sellers%>%
+  mutate(Year = as.factor(Year))
+head(best_sellers)
+
+best_sellers$Author
+```
+
+##How does the Number User ratings vary by genre? Does genre have anything to do with rating? 
+```{r}
+best_sellers %>%
+count(`User Rating`, Genre) %>%
+ggplot(aes(y = reorder(`User Rating`, n),
+x = n,
+fill = Genre)) +
+geom_col()+
+   scale_fill_manual(values = brewer.pal(4, "BrBG"))+
+  labs(x = "Number of Ratings",
+       y = "User Rating",
+       title = "Amazon Top 50 Bestselling books 2009-2019",
+       subtitle = "User rating by Genre from 2009-2019",
+       caption = "https://www.kaggle.com/sootersaalu/amazon-top-50-bestselling-books-2009-2019")
+
+#From this chart we can see that the there is a lot of fiction higher ratings 
+```
+##How does price correlate to user rating?
+```{r}
+best_sellers %>%
+  ggplot(aes(x = Year,
+             y = Price))+
+  geom_col()
+  
+best_sellers_rating <- best_sellers%>%
+  select(Genre, `User Rating`) %>%
+  filter(`User Rating` < 4)
+
+
+
+best_sellers %>%
+  ggplot(aes(x = `User Rating`, 
+             y = Price, 
+             color = Genre)) +
+  geom_point()+
+  scale_fill_manual(values = brewer.pal(3, "PiYG"))+
+  labs(x = "User Rating (0-5)",
+       y = "Price ($USD)",
+       title = "Amazon Top 50 Bestselling books 2009-2019",
+       subtitle = "Price versus user rating",
+       caption = "https://www.kaggle.com/sootersaalu/amazon-top-50-bestselling-books-2009-2019")
+
+#From this plot I can see that most of the user ratings are between 4-5 and also being under the $25 price range
+  
+```
+##Which Author has wriiten the most books in the Fiction genre?
+```{R}
+best_sellers_fiction <- best_sellers%>%
+  filter(Genre == "Fiction")
+
+best_sellers_fiction%>%
+  ggplot(aes(x = Author))+
+  geom_bar()+
+  theme(axis.text.x = element_text(angle = 70, hjust = 1, size = 8))+
+   scale_fill_manual(values = brewer.pal(10, "BrBG"))+
+  labs(x = "Author Names",
+       y = "Number of Books",
+       title = "Amazon Top 50 Bestselling books 2009-2019",
+       subtitle = "Number of books per Author on the bestselling list",
+       caption = "https://www.kaggle.com/sootersaalu/amazon-top-50-bestselling-books-2009-2019")
+  
+#From this chart I can see that JJeff Jiney has written the most books in the Fiction genre.
+
+
+
+```
